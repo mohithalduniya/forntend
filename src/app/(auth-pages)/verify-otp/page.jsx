@@ -1,16 +1,15 @@
 "use client";
-export const dynamic = 'force-dynamic';
 
-import { useRef, useState } from "react";
+import { useRef, useState, Suspense } from "react";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from 'sonner';
-import { slugify } from "@/utils/helper";
 import client from "@/utils/helper";
 
-const VerifyOtp = () => {
-    const router = useRouter()
+// 1. Is component ke andar aapka sara purana logic aur UI hai jo useSearchParams use karta hai
+function VerifyOtpContent() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get("email") || "";
 
@@ -42,34 +41,30 @@ const VerifyOtp = () => {
         }
     };
 
-
     const handleSubmit = (e) => {
         e.preventDefault();
         const otpValue = otp.join("");
         const data = {
             otp: otpValue,
             email: email,
-        }
+        };
 
         client.post(`api/user/verify-register-otp`, data).then(
             (response) => {
                 if (response.data.success) {
-                    toast.success(response.data.message)
-                    router.push(`/signin`)
+                    toast.success(response.data.message);
+                    router.push(`/signin`);
                 }
             }
         ).catch(
             (error) => {
-
-                toast.error(error.response?.data.message || "Internal Server Error")
+                toast.error(error.response?.data.message || "Internal Server Error");
             }
-        )
-
-    }
+        );
+    };
 
     return (
         <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center px-4">
-
             <div className="w-full max-w-md">
 
                 {/* Brand */}
@@ -77,7 +72,6 @@ const VerifyOtp = () => {
                     <h1 className="text-3xl font-bold tracking-[4px] text-[#2C2016]">
                         NESTRO
                     </h1>
-
                     <p className="mt-2 text-sm text-gray-500">
                         Secure account verification
                     </p>
@@ -114,7 +108,6 @@ const VerifyOtp = () => {
 
                         {/* OTP Inputs */}
                         <div className="flex justify-center gap-2 sm:gap-3">
-
                             {otp.map((digit, index) => (
                                 <input
                                     key={index}
@@ -137,7 +130,6 @@ const VerifyOtp = () => {
                                     className="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-semibold text-[#2C2016] border border-[#E8E0D5] rounded-lg outline-none focus:border-[#8B5E3C] focus:ring-1 focus:ring-[#8B5E3C]"
                                 />
                             ))}
-
                         </div>
 
                         {/* Timer */}
@@ -187,6 +179,17 @@ const VerifyOtp = () => {
             </div>
         </div>
     );
-};
+}
 
-export default VerifyOtp;
+// 2. Main Page Component jise Suspense ke sath export kiya gaya hai
+export default function VerifyOtp() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center">
+                <p className="text-sm text-gray-500">Loading...</p>
+            </div>
+        }>
+            <VerifyOtpContent />
+        </Suspense>
+    );
+}
