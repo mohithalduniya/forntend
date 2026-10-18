@@ -1,11 +1,73 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Eye,
+  EyeOff,
+  Check,
+  ArrowRight,
+  ShieldCheck,
+  ShieldAlert,
+} from "lucide-react";
+import { toast } from "sonner";
+import client from "@/utils/helper";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SignInClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  const { login } = useAuth();
 
-  // Yahan apna existing sign-in UI aur logic rakho.
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+
+    if (loading) return;
+
+    const form = e.currentTarget;
+    const data = {
+      email: form.email.value.trim(),
+      password: form.password.value,
+    };
+
+    try {
+      setLoading(true);
+
+      const response = await client.post("/api/user/login", data);
+
+      if (!response.data.success) {
+        toast.error(response.data.message || "Login failed");
+        return;
+      }
+
+      // Save user & token in context and localStorage
+      login(response.data.user, response.data.token);
+      toast.success(response.data.message || "Login successful");
+
+      // Redirect based on role or search parameter
+      const userRole = response.data.user?.role;
+      if (userRole === "admin" || userRole === "superAdmin") {
+        router.push("/admin");
+      } else if (redirectParam) {
+        router.push(redirectParam);
+      } else {
+        router.push("/");
+      }
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to sign in. Please check credentials."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
  <div className="min-h-screen bg-[#F9F6F0] font-sans text-[#2C221E]">
@@ -122,7 +184,7 @@ export default function SignInClient() {
                   </label>
 
                   <Link
-                    href="/forgot-password"
+                    href="/contact"
                     className="text-xs text-[#8C5A3C] hover:underline"
                   >
                     Forgot password?

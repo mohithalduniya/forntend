@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   IoIosArrowRoundForward,
   IoIosArrowDropright,
@@ -49,14 +50,20 @@ export default function Slideshow() {
 
             {/* Buttons */}
             <div className="mt-8 flex flex-wrap gap-3">
-              <button className="flex items-center gap-3 rounded-md bg-[#a96f42] px-6 py-3 text-xs tracking-wider text-white transition hover:bg-[#8e5a35] md:text-sm">
+              <Link
+                href="/store"
+                className="flex items-center gap-3 rounded-md bg-[#a96f42] px-6 py-3 text-xs tracking-wider text-white transition hover:bg-[#8e5a35] md:text-sm"
+              >
                 Shop Collection
                 <IoIosArrowRoundForward className="text-xl" />
-              </button>
+              </Link>
 
-              <button className="rounded-md border border-white/30 bg-white/5 px-6 py-3 text-xs tracking-wider text-white backdrop-blur-sm transition hover:bg-white/10 md:text-sm">
+              <Link
+                href="/about"
+                className="rounded-md border border-white/30 bg-white/5 px-6 py-3 text-xs tracking-wider text-white backdrop-blur-sm transition hover:bg-white/10 md:text-sm"
+              >
                 View Lookbook
-              </button>
+              </Link>
             </div>
           </div>
         </div>

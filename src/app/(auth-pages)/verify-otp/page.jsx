@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, Suspense } from "react";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { slugify } from "@/utils/helper";
 import client from "@/utils/helper";
 
-const VerifyOtp = () => {
+const VerifyOtpContent = () => {
     const router = useRouter()
     const searchParams = useSearchParams();
     const email = searchParams.get("email") || "";
@@ -188,4 +188,14 @@ const VerifyOtp = () => {
     );
 };
 
-export default VerifyOtp;
+export default function VerifyOtp() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-[#8B5E3C]/30 border-t-[#8B5E3C] rounded-full animate-spin"></div>
+            </div>
+        }>
+            <VerifyOtpContent />
+        </Suspense>
+    );
+}

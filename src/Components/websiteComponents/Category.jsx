@@ -1,5 +1,6 @@
 import { fetchCategory } from "@/api/category";
 import React from "react";
+import Link from "next/link";
 
 export default async function Category() {
   const response = await fetchCategory({ status: true, limit: 0 });
@@ -27,9 +28,10 @@ export default async function Category() {
               "https://images.unsplash.com/photo-1758448511322-8bfc73daf606?auto=format&fit=crop&w=200&h=200&q=80";
 
             return (
-              <div
+              <Link
                 key={item._id || index}
-                className="group text-center mt-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
+                href={`/store?category=${encodeURIComponent(item.name || "")}`}
+                className="group block text-center mt-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
               >
                 <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto">
                   <img
@@ -44,7 +46,7 @@ export default async function Category() {
                 <div className="text-[#6b7280] text-[10px] sm:text-[12px] mt-1">
                   <p>{item.count || 0} Pieces</p>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

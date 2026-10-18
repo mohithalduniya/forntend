@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Arrivals() {
   return (
     <section className="px-5 sm:px-10 lg:px-20 py-8">
@@ -13,9 +15,12 @@ export default function Arrivals() {
           </h2>
         </div>
 
-        <button className="text-[11px] text-[#8e6040] underline underline-offset-4 transition hover:text-[#5E3122]">
+        <Link
+          href="/store"
+          className="text-[11px] text-[#8e6040] underline underline-offset-4 transition hover:text-[#5E3122]"
+        >
           View all
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
@@ -41,9 +46,12 @@ export default function Arrivals() {
             ₹1,24,000
           </p>
 
-          <button className="mt-5 rounded-md bg-[#9a633d] px-5 py-2.5 text-[11px] tracking-wide transition hover:bg-[#b1784b]">
+          <Link
+            href="/store"
+            className="inline-block mt-5 rounded-md bg-[#9a633d] px-5 py-2.5 text-[11px] tracking-wide transition hover:bg-[#b1784b]"
+          >
             View in Store
-          </button>
+          </Link>
 
           {/* Featured Image */}
           <div className="group mt-6 h-37.5overflow-hidden rounded-xl">
@@ -142,9 +150,12 @@ export default function Arrivals() {
               Use code Nestro15 at checkout.
             </p>
 
-            <button className="mt-3 rounded-md bg-[#99623c] px-5 py-2 text-[10px] text-white transition hover:bg-[#7f4f31]">
+            <Link
+              href="/store"
+              className="inline-block mt-3 rounded-md bg-[#99623c] px-5 py-2 text-[10px] text-white transition hover:bg-[#7f4f31]"
+            >
               Shop Now
-            </button>
+            </Link>
           </div>
 
           <div className="min-h-59 rounded-2xl border border-[#dfd5ca] bg-white p-5">

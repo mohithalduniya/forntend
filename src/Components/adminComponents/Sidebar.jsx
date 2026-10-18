@@ -13,6 +13,8 @@ import { IoIosColorPalette } from "react-icons/io";
 import { FiSettings, FiLogOut } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
 
+import { toast } from "sonner";
+
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -21,14 +23,12 @@ export default function Sidebar() {
   // Sidebar Open/Collapse State
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-
   // Menu items list with corresponding routes
   const menuItems = [
     { name: "Dashboard", path: "/admin", icon: <MdOutlineDashboard /> },
     { name: "Category", path: "/admin/category", icon: <MdCategory /> },
     { name: "Products", path: "/admin/product", icon: <MdOutlineDiscount /> },
     { name: "Rooms", path: "/admin/rooms", icon: <IoBedOutline /> },
-    { name: "Colors", path: "/admin/colors", icon: <IoIosColorPalette /> },
   ];
 
   const handleNavigation = (path) => {
@@ -112,12 +112,8 @@ export default function Sidebar() {
 
         <div className="px-2 mt-2">
           <div
-            onClick={() => handleNavigation("/settings")}
-            className={`group flex items-center gap-4 px-3 py-2.5 rounded-xl transition duration-200 cursor-pointer ${
-              pathname === "/settings"
-                ? "bg-[#192735] text-[#00d6c1]"
-                : "text-gray-300 hover:bg-[#192735] hover:text-white"
-            }`}
+            onClick={() => toast.info("System settings will be available in the upcoming release.")}
+            className="group flex items-center gap-4 px-3 py-2.5 rounded-xl transition duration-200 cursor-pointer text-gray-300 hover:bg-[#192735] hover:text-white"
             title={isCollapsed ? "Settings" : ""}
           >
             <div className="p-2 rounded-lg text-xl group-hover:bg-[#25323f]">

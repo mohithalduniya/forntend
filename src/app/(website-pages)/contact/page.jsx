@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Phone, Mail, Clock, MapPin, Send } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ContactPage() {
   return (
@@ -74,7 +75,13 @@ export default function ContactPage() {
           <h3 className="text-lg font-medium mb-1">Send us a message</h3>
           <p className="text-xs text-gray-400 mb-6">We typically respond within 24 hours.</p>
 
-          <form className="space-y-4 text-xs">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              toast.success("Thank you! Your message has been sent. We will reply within 24 hours.");
+            }}
+            className="space-y-4 text-xs"
+          >
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-500 mb-1">First Name</label>

@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { FaInstagram, FaYoutube, FaPinterest } from "react-icons/fa";
 
 export default function Footer() {
@@ -58,9 +59,9 @@ export default function Footer() {
           </h3>
 
           <div className="flex flex-col gap-3 text-[12px]">
-            <a href="#" className="hover:text-[#FAF7F4] transition">
+            <Link href="/about" className="hover:text-[#FAF7F4] transition">
               Our Story
-            </a>
+            </Link>
 
             <a href="#" className="hover:text-[#FAF7F4] transition">
               Sustainability
@@ -82,9 +83,9 @@ export default function Footer() {
           </h3>
 
           <div className="flex flex-col gap-3 text-[12px]">
-            <a href="#" className="hover:text-[#FAF7F4] transition">
+            <Link href="/profile" className="hover:text-[#FAF7F4] transition">
               Track Order
-            </a>
+            </Link>
 
             <a href="#" className="hover:text-[#FAF7F4] transition">
               Returns & Exchange
@@ -94,9 +95,9 @@ export default function Footer() {
               Assembly Help
             </a>
 
-            <a href="#" className="hover:text-[#FAF7F4] transition">
+            <Link href="/contact" className="hover:text-[#FAF7F4] transition">
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -182,17 +183,17 @@ export default function Footer() {
         <p>© 2026 Nestro. All rights reserved.</p>
 
         <div className="flex gap-6">
-          <a href="#" className="hover:text-[#FAF7F4] transition">
+          <Link href="/privacy" className="hover:text-[#FAF7F4] transition">
             Privacy
-          </a>
+          </Link>
 
-          <a href="#" className="hover:text-[#FAF7F4] transition">
+          <Link href="/terms" className="hover:text-[#FAF7F4] transition">
             Terms
-          </a>
+          </Link>
 
-          <a href="#" className="hover:text-[#FAF7F4] transition">
+          <Link href="/store" className="hover:text-[#FAF7F4] transition">
             Sitemap
-          </a>
+          </Link>
         </div>
       </div>
     </footer>
