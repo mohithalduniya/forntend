@@ -6,6 +6,7 @@ import {
   MdOutlineDiscount,
   MdOutlineDashboard,
   MdCategory,
+  MdOutlineShoppingBag,
 } from "react-icons/md";
 import { TfiMenu } from "react-icons/tfi";
 import { IoBedOutline } from "react-icons/io5";
@@ -26,8 +27,9 @@ export default function Sidebar() {
   // Menu items list with corresponding routes
   const menuItems = [
     { name: "Dashboard", path: "/admin", icon: <MdOutlineDashboard /> },
-    { name: "Category", path: "/admin/category", icon: <MdCategory /> },
     { name: "Products", path: "/admin/product", icon: <MdOutlineDiscount /> },
+    { name: "Orders", path: "/admin/orders", icon: <MdOutlineShoppingBag /> },
+    { name: "Category", path: "/admin/category", icon: <MdCategory /> },
     { name: "Rooms", path: "/admin/rooms", icon: <IoBedOutline /> },
   ];
 

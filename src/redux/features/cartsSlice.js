@@ -2,77 +2,131 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = { item: [], price: 0, salePrice: 0 };
 
+const calculateTotals = (items = []) => {
+  return items.reduce(
+    (acc, it) => {
+      const qty = Number(it.qty) || 1;
+      const reg = Number(it.price) || 0;
+      const sale = Number(it.salePrice ?? it.saleprice ?? it.price) || reg;
+      acc.price += reg * qty;
+      acc.salePrice += sale * qty;
+      return acc;
+    },
+    { price: 0, salePrice: 0 }
+  );
+};
+
 export const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
     addTocart: (state, { payload }) => {
-      const product = state.item.find((item) => item.id == payload.id);
-      if (product) {
-        product.qty++;
-      } else {
-        state.item.push(payload);
-      }
-      state.price += Number(payload.price);
-      state.salePrice += Number(payload.salePrice);
-      localStorage.setItem("cart", JSON.stringify(state));
+      if (!payload) return;
+      const prodId = String(payload.id || payload._id || "");
+      const product = state.item.find(
+        (item) => String(item.id || item._id) === prodId
+      );
 
-      // state.value += 1
+      if (product) {
+        product.qty = (Number(product.qty) || 1) + (Number(payload.qty) || 1);
+        if (!product.thumbnail && payload.thumbnail) {
+          product.thumbnail = payload.thumbnail;
+        }
+      } else {
+        state.item.push({
+          ...payload,
+          id: prodId,
+          _id: prodId,
+          qty: Number(payload.qty) || 1,
+        });
+      }
+
+      const totals = calculateTotals(state.item);
+      state.price = totals.price;
+      state.salePrice = totals.salePrice;
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cart", JSON.stringify(state));
+      }
     },
-    lstocart: (state, { payload }) => {
-      const lscart = JSON.parse(localStorage.getItem("cart"));
-      if (lscart) {
-        state.item = lscart.item;
-        state.price = Number(lscart.price);
-        state.salePrice = Number(lscart.salePrice);
+
+    lstocart: (state) => {
+      if (typeof window === "undefined") return;
+      try {
+        const raw = localStorage.getItem("cart");
+        if (!raw) return;
+        const lscart = JSON.parse(raw);
+        if (lscart && Array.isArray(lscart.item)) {
+          // Drop corrupted items from previous buggy dispatches
+          state.item = lscart.item.filter(
+            (it) => it && (it.id || it._id) && it.name && it.name !== "undefined"
+          );
+          const totals = calculateTotals(state.item);
+          state.price = totals.price;
+          state.salePrice = totals.salePrice;
+          localStorage.setItem("cart", JSON.stringify(state));
+        }
+      } catch (err) {
+        // ignore parse error
       }
     },
 
     increment: (state, { payload }) => {
-      // state.value += 1
-      const { id } = payload;
-      const products = state.item.find((item) => item.id === id);
-      if (!products) return;
-      products.qty++;
-      state.price += Number(products.price);
-      state.salePrice += Number(products.salePrice);
+      const targetId = String(payload?.id || payload?._id || "");
+      const product = state.item.find(
+        (item) => String(item.id || item._id) === targetId
+      );
+      if (!product) return;
+      product.qty = (Number(product.qty) || 1) + 1;
 
-      localStorage.setItem("cart", JSON.stringify(state));
+      const totals = calculateTotals(state.item);
+      state.price = totals.price;
+      state.salePrice = totals.salePrice;
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cart", JSON.stringify(state));
+      }
     },
 
     decrement: (state, { payload }) => {
-      const { id } = payload;
-      const products = state.item.find((item) => item.id === id);
-      if (!products) return;
-      if (products.qty > 1) {
-        products.qty--;
-      } else {
-        state.item = state.item.filter((item) => item.id != id);
-      }
-      state.price -= Number(products.price);
-      state.salePrice -= Number(products.salePrice);
+      const targetId = String(payload?.id || payload?._id || "");
+      const product = state.item.find(
+        (item) => String(item.id || item._id) === targetId
+      );
+      if (!product) return;
 
-      localStorage.setItem("cart", JSON.stringify(state));
+      if ((Number(product.qty) || 1) > 1) {
+        product.qty = (Number(product.qty) || 1) - 1;
+      } else {
+        state.item = state.item.filter(
+          (item) => String(item.id || item._id) !== targetId
+        );
+      }
+
+      const totals = calculateTotals(state.item);
+      state.price = totals.price;
+      state.salePrice = totals.salePrice;
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cart", JSON.stringify(state));
+      }
     },
 
     remove_cart_item: (state, { payload }) => {
-      const { id } = payload;
+      const targetId = String(payload?.id || payload?._id || "");
+      state.item = state.item.filter(
+        (item) => String(item.id || item._id) !== targetId
+      );
 
-      const products = state.item.find((item) => item.id === id);
+      const totals = calculateTotals(state.item);
+      state.price = totals.price;
+      state.salePrice = totals.salePrice;
 
-      if (!products) return;
-
-      // Cart se product remove
-      state.item = state.item.filter((item) => item.id !== id);
-
-      // Total price update
-      state.price -= Number(products.price) * Number(products.qty);
-
-      // Total sale price update
-      state.salePrice -= Number(products.salePrice) * Number(products.qty);
-
-      localStorage.setItem("cart", JSON.stringify(state));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cart", JSON.stringify(state));
+      }
     },
+
     emtycart: (state) => {
       state.item = [];
       state.price = 0;
@@ -84,8 +138,13 @@ export const cartSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
-export const { addTocart, lstocart, increment, decrement, remove_cart_item, emtycart } =
-  cartSlice.actions;
+export const {
+  addTocart,
+  lstocart,
+  increment,
+  decrement,
+  remove_cart_item,
+  emtycart,
+} = cartSlice.actions;
 
 export default cartSlice.reducer;

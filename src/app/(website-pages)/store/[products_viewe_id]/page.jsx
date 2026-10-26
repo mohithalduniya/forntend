@@ -313,6 +313,11 @@ export default async function ProductPage({ params }) {
 
 <div className=" grid grid-cols-2 gap-2">
             <Add_to_cart
+              product={{
+                ...product,
+                thumbnail: mainImage || thumbnail || product.thumbnail,
+              }}
+              disabled={!product.stock}
               className={`${
                 product.stock
                   ? "bg-[#2C2016] text-white hover:bg-[#8B5E3C]"

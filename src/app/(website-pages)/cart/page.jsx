@@ -117,12 +117,11 @@ export default function CartPage() {
                           )}
 
                           <button
-                          onClick={()=>{
-                            dispatch (remove_cart_item({id:product.id}))
-                            
-                          }}
+                            onClick={() => {
+                              dispatch(remove_cart_item({ id: product.id || product._id }));
+                            }}
                             type="button"
-                            className="mt-3 w-fit text-xs font-medium text-red-500 hover:text-red-700"
+                            className="mt-3 w-fit text-xs font-medium text-red-500 hover:text-red-700 cursor-pointer"
                           >
                             Remove
                           </button>
@@ -137,11 +136,11 @@ export default function CartPage() {
 
                         <div className="flex h-10 items-center overflow-hidden rounded-lg border border-[#ded3cc]">
                           <button
-                          onClick={()=>{
-                            dispatch(decrement({id:product.id}))
-                          }}
+                            onClick={() => {
+                              dispatch(decrement({ id: product.id || product._id }));
+                            }}
                             type="button"
-                            className="flex h-full w-9 items-center justify-center text-gray-500 hover:bg-[#f8f3f0]"
+                            className="flex h-full w-9 items-center justify-center text-gray-500 hover:bg-[#f8f3f0] cursor-pointer"
                           >
                             −
                           </button>
@@ -151,11 +150,11 @@ export default function CartPage() {
                           </span>
 
                           <button
-                          onClick={()=>{
-                            dispatch(increment({id:product.id}))
-                          }}
+                            onClick={() => {
+                              dispatch(increment({ id: product.id || product._id }));
+                            }}
                             type="button"
-                            className="flex h-full w-9 items-center justify-center text-gray-500 hover:bg-[#f8f3f0]"
+                            className="flex h-full w-9 items-center justify-center text-gray-500 hover:bg-[#f8f3f0] cursor-pointer"
                           >
                             +
                           </button>
