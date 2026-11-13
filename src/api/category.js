@@ -27,7 +27,7 @@ async function fetchCategory(params = {}) {
 
 async function fetchCategoryById(id) {
   try {
-    const response = await client.get(`category/${id}`);
+    const response = await client.get(`/api/category/${id}`);
     if (response.data.success) {
       return response.data;
     }

@@ -12,7 +12,9 @@ export const slugify = (text = "") => {
 
 const client = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000",
-  timeout: 10000,
+  // Free hosting (e.g. Render) can take 30-60s to wake up; a 10s limit made
+  // signup fail client-side even though the account and OTP were already saved.
+  timeout: 60000,
   withCredentials: true,
   // No default "Content-Type: application/json": it breaks FormData (file) uploads.
   // Axios sets JSON for plain objects and multipart for FormData automatically.

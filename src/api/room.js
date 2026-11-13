@@ -18,7 +18,7 @@ async function fetchroom() {
 
 async function fetchroomById(id) {
   try {
-    const response = await client.get(`room/${id}`);
+    const response = await client.get(`/api/room/${id}`);
     if (response.data.success) {
       return response.data;
     }

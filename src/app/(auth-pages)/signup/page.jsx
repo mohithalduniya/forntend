@@ -19,12 +19,13 @@ export default function SignUp() {
 
     if (loading) return;
 
-    const form = e.currentTarget;
+    // FormData avoids `form.name`, which is the form's own property, not the input
+    const fd = new FormData(e.currentTarget);
 
-    const name = form.name.value.trim();
-    const email = form.email.value.trim();
-    const password = form.password.value;
-    const confirmPassword = form.confirmPassword.value;
+    const name = String(fd.get("name") || "").trim();
+    const email = String(fd.get("email") || "").trim();
+    const password = String(fd.get("password") || "");
+    const confirmPassword = String(fd.get("confirmPassword") || "");
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
@@ -52,13 +53,22 @@ export default function SignUp() {
         return;
       }
 
-      toast.success(response.data.message || "Account created successfully");
+      if (response.data.emailSent === false) {
+        // Account is saved; the OTP page has a Resend button, so still continue
+        toast.warning(response.data.message);
+      } else {
+        toast.success(response.data.message || "Account created successfully");
+      }
 
       const registeredEmail = response.data.email || email;
 
       router.push(`/verify-otp?email=${encodeURIComponent(registeredEmail)}`);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Unable to create account");
+      toast.error(
+        error.code === "ECONNABORTED"
+          ? "Server is taking too long to respond. Please try again."
+          : error.response?.data?.message || "Unable to create account"
+      );
     } finally {
       setLoading(false);
     }
