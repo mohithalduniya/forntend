@@ -87,18 +87,7 @@ export default function AdminLoginPage() {
             </p>
           </div>
 
-          {/* Quick Demo Credentials Info */}
-          <div className="mb-6 p-3 rounded-xl bg-teal-950/40 border border-teal-700/40 text-xs text-teal-300 flex items-start gap-2.5">
-            <ShieldCheck size={16} className="shrink-0 mt-0.5 text-teal-400" />
-            <div>
-              <p className="font-semibold text-teal-200">Default Admin Account</p>
-              <p className="text-[11px] text-teal-400 mt-0.5">
-                Email: <span className="font-mono text-white">admin@nestro.com</span> | Pass:{" "}
-                <span className="font-mono text-white">admin123</span>
-              </p>
-            </div>
-          </div>
-
+      
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
