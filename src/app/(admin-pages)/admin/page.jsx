@@ -24,6 +24,9 @@ import {
 import client from "@/utils/helper";
 import { toast } from "sonner";
 
+const RANGE_PARAM = { Today: "today", Week: "week", Month: "month" };
+const PERIOD_LABEL = { Today: "Today", Week: "Last 7 days", Month: "Last 30 days" };
+
 export default function AdminDashboardPage() {
   const [timeRange, setTimeRange] = useState("Month");
   const [statsData, setStatsData] = useState({
@@ -35,6 +38,8 @@ export default function AdminDashboardPage() {
     deliveredOrders: 0,
   });
   const [recentOrders, setRecentOrders] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [monthlyTrend, setMonthlyTrend] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
 
@@ -42,10 +47,14 @@ export default function AdminDashboardPage() {
   const fetchDashboardStats = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await client.get("/api/order/admin/stats");
+      const res = await client.get("/api/order/admin/stats", {
+        params: { range: RANGE_PARAM[timeRange] },
+      });
       if (res.data?.success) {
         setStatsData(res.data.stats || {});
         setRecentOrders(res.data.recentOrders || []);
+        setTopProducts(res.data.topProducts || []);
+        setMonthlyTrend(res.data.monthlyTrend || []);
       }
     } catch (err) {
       console.error("Dashboard stats error:", err);
@@ -53,7 +62,7 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [timeRange]);
 
   useEffect(() => {
     fetchDashboardStats();
@@ -80,11 +89,12 @@ export default function AdminDashboardPage() {
   };
 
   // Stats Cards Array
+  const periodLabel = PERIOD_LABEL[timeRange];
   const stats = [
     {
       title: "Total Revenue",
       value: `₹${(statsData.totalRevenue || 0).toLocaleString("en-IN")}`,
-      change: "+15.2%",
+      change: periodLabel,
       isPositive: true,
       icon: <FiDollarSign className="w-5 h-5 text-emerald-600" />,
       bgColor: "bg-emerald-50",
@@ -92,7 +102,7 @@ export default function AdminDashboardPage() {
     {
       title: "Total Orders",
       value: statsData.totalOrders || 0,
-      change: "+8.4%",
+      change: periodLabel,
       isPositive: true,
       icon: <FiShoppingBag className="w-5 h-5 text-blue-600" />,
       bgColor: "bg-blue-50",
@@ -108,42 +118,10 @@ export default function AdminDashboardPage() {
     {
       title: "Delivered Orders",
       value: statsData.deliveredOrders || 0,
-      change: "+100%",
+      change: periodLabel,
       isPositive: true,
       icon: <FiBox className="w-5 h-5 text-purple-600" />,
       bgColor: "bg-purple-50",
-    },
-  ];
-
-  // Top Products Mock Data
-  const topProducts = [
-    {
-      name: "Ember Velvet 3-Seater",
-      sales: "148 sales",
-      revenue: "₹1,31,720",
-      rating: "4.9",
-      icon: <FiBox className="w-5 h-5" />,
-    },
-    {
-      name: "Travertine Side Table",
-      sales: "94 sales",
-      revenue: "₹52,640",
-      rating: "4.8",
-      icon: <FiBox className="w-5 h-5" />,
-    },
-    {
-      name: "Aura Bouclé Armchair",
-      sales: "82 sales",
-      revenue: "₹44,280",
-      rating: "4.8",
-      icon: <FiBox className="w-5 h-5" />,
-    },
-    {
-      name: "Walnut Dining Set",
-      sales: "64 sales",
-      revenue: "₹76,800",
-      rating: "4.7",
-      icon: <FiBox className="w-5 h-5" />,
     },
   ];
 
@@ -241,35 +219,45 @@ export default function AdminDashboardPage() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-lg font-bold text-gray-900">Revenue & Order Trend</h2>
-              <p className="text-xs text-gray-400">Monthly overview of total completed transactions</p>
+              <p className="text-xs text-gray-400">Revenue per month, last 12 months (cancelled orders excluded)</p>
             </div>
             <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-3 py-1 rounded-full">
               Live DB Synced
             </span>
           </div>
 
-          {/* Simple Visual Bar Representation */}
-          <div className="h-56 w-full flex items-end justify-between gap-2 border-b border-gray-100 pb-4 px-4">
-            {[45, 60, 52, 78, 65, 84, 70, 92, 88, 76, 95, 100].map((height, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
-                <div
-                  style={{ height: `${height * 1.8}px` }}
-                  className="w-full max-w-[28px] bg-teal-600/75 group-hover:bg-teal-600 rounded-t-md transition-all shadow-sm"
-                  title={`Month ${i + 1}: ${height}%`}
-                ></div>
-              </div>
-            ))}
-          </div>
+          {/* Monthly revenue bars (last 12 months, from the database) */}
+          {(() => {
+            const maxRevenue = Math.max(0, ...monthlyTrend.map((m) => m.revenue));
+            return (
+              <>
+                <div className="h-56 w-full flex items-end justify-between gap-2 border-b border-gray-100 pb-4 px-4">
+                  {monthlyTrend.map((m) => {
+                    const pct = maxRevenue > 0 ? (m.revenue / maxRevenue) * 100 : 0;
+                    return (
+                      <div key={`${m.year}-${m.month}`} className="flex-1 flex flex-col items-center justify-end gap-1 group h-full">
+                        <div
+                          style={{ height: `${Math.max(pct, m.revenue > 0 ? 3 : 1) * 1.8}px` }}
+                          className={`w-full max-w-[28px] rounded-t-md transition-all shadow-sm ${
+                            m.revenue > 0
+                              ? "bg-teal-600/75 group-hover:bg-teal-600"
+                              : "bg-gray-100"
+                          }`}
+                          title={`${m.label} ${m.year}: ₹${m.revenue.toLocaleString("en-IN")} (${m.orders} orders)`}
+                        ></div>
+                      </div>
+                    );
+                  })}
+                </div>
 
-          {/* Months Axis */}
-          <div className="flex justify-between text-xs text-gray-400 pt-3 px-2">
-            {[
-              "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-            ].map((m) => (
-              <span key={m}>{m}</span>
-            ))}
-          </div>
+                <div className="flex justify-between text-xs text-gray-400 pt-3 px-2">
+                  {monthlyTrend.map((m) => (
+                    <span key={`${m.year}-${m.month}`}>{m.label}</span>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
         </div>
 
         {/* Top Products */}
@@ -285,25 +273,33 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="space-y-4">
+            {topProducts.length === 0 && !loading && (
+              <p className="text-xs text-gray-400 text-center py-8">
+                No sales in this period yet.
+              </p>
+            )}
             {topProducts.map((prod, idx) => (
-              <div key={idx} className="flex items-center justify-between">
+              <div key={prod.id || idx} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-gray-100 text-gray-700 rounded-xl">
-                    {prod.icon}
+                  <div className="p-1.5 bg-gray-100 text-gray-700 rounded-xl w-10 h-10 flex items-center justify-center overflow-hidden">
+                    {prod.thumbnail ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={prod.thumbnail} alt="" className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <FiBox className="w-5 h-5" />
+                    )}
                   </div>
                   <div>
                     <h4 className="text-sm font-semibold text-gray-900">
                       {prod.name}
                     </h4>
                     <p className="text-xs text-gray-400">
-                      {prod.sales} •{" "}
-                      <span className="text-gray-600 font-medium">{prod.revenue}</span>
+                      {prod.sales} sold •{" "}
+                      <span className="text-gray-600 font-medium">
+                        ₹{(prod.revenue || 0).toLocaleString("en-IN")}
+                      </span>
                     </p>
                   </div>
-                </div>
-                <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
-                  <FiStar className="w-3.5 h-3.5 fill-amber-400" />
-                  {prod.rating}
                 </div>
               </div>
             ))}
